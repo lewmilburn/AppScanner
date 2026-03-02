@@ -1,0 +1,6 @@
+/.venv
+/.idea
+/libs/trufflehog_linux
+/libs/trufflehog_macos
+/libs/trufflehog_windows.exe
+/libs/gplaylci.conf
