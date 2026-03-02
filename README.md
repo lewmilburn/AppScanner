@@ -73,9 +73,9 @@ pip install "setuptools==68.2.2"
 - APKTool requires Java.
 
 ### Trufflehog
-- This version of AppScanner is bundled with Trufflehod 3.93.6, if you update it ensure the filenames match.
+- This version of AppScanner is bundled with Trufflehod 3.93.6, if you update it delete the old files uncompressed files and drop the new .tar.gz files in the libs folder, do not rename them.
 - Not running? Try `chmod +x /libs/trufflehog_[OS]` if on Linux/macOS.
-- Trufflehog will be extracted automatically on first run.
+- Trufflehog is distributed with AppScanner and will be extracted automatically on first run.
 
 ## Roadmap
 - App ID searching
