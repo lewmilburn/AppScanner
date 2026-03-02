@@ -75,6 +75,7 @@ pip install "setuptools==68.2.2"
 ### Trufflehog
 - This version of AppScanner is bundled with Trufflehod 3.93.6, if you update it ensure the filenames match.
 - Not running? Try `chmod +x /libs/trufflehog_[OS]` if on Linux/macOS.
+- Trufflehog will be extracted automatically on first run.
 
 ## Roadmap
 - App ID searching
