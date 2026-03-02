@@ -20,6 +20,8 @@ APPS_DIR       = Path(__file__).parent / "../apps"
 DECOMPILE_DIR  = APPS_DIR / "decompile_temp"
 
 def _get_trufflehog() -> str:
+    system = platform.system().lower()
+
     arch_map = {
         "x86_64": "amd64",
         "amd64": "amd64",
@@ -30,10 +32,10 @@ def _get_trufflehog() -> str:
     if not arch: raise RuntimeError(f"Unsupported architecture: {platform.machine().lower()}")
 
     ext_map = {"windows": ".exe"}
-    if platform.system().lower() not in ("windows", "darwin", "linux"): raise RuntimeError(f"Unsupported OS: {platform.system().lower()}")
+    if system not in ("windows", "darwin", "linux"): raise RuntimeError(f"Unsupported OS: {system}")
 
-    ext = ext_map.get(platform.system().lower(), "")
-    return str(Path(__file__).parent / f"trufflehog_{platform.system().lower()}_{arch}{ext}")
+    ext = ext_map.get(system, "")
+    return str(Path(__file__).parent / f"trufflehog_{system}_{arch}{ext}")
 
 def _get_apktool() -> str: return str(Path(__file__).parent / "apktool.jar")
 
@@ -147,7 +149,12 @@ def scan_all() -> None:
         if report is None:
             results.append({"apk": apk_path.stem, "status": "scan_failed"})
         else:
-            results.append({"apk": apk_path.stem, "status": "ok", "total_findings": report["total_findings"], "report": report})
+            results.append({
+                "apk": apk_path.stem,
+                "status": "ok",
+                "total_findings": report["total_findings"],
+                "report": report
+            })
 
         print()
 
