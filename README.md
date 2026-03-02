@@ -1,7 +1,5 @@
 # AppScanner
 
-_Created by Lewis Milburn at KPMG UK - lewis.milburn@kpmg.co.uk_
-
 AppScanner is a security testing tool that downloads, decompiles, and scans Android applications. Once scanned, the
 script then generates a JSON report that can be used into other tools and a HTML report that can be opened in your
 browser and shared with others.
