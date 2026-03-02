@@ -50,11 +50,6 @@ def clear_credentials() -> None:
     else:
         print("[AUTH] No saved credentials found.")
 
-
-# ---------------------------------------------------------------------------
-# Auth
-# ---------------------------------------------------------------------------
-
 def get_credentials() -> tuple[str, str]:
     config = load_config()
     if config.has_section("Credentials"):
@@ -89,16 +84,10 @@ def get_credentials() -> tuple[str, str]:
 
     return email, password
 
-
-# ---------------------------------------------------------------------------
-# Download
-# ---------------------------------------------------------------------------
-
 def download(app_id: str, dest_dir: Path = Path("..")) -> None:
-    """Download app_id as <app_id>.apk into dest_dir."""
     os.environ["PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION"] = "python"
 
-    get_credentials()  # ensures gplaycli.conf is populated before calling gplaycli
+    get_credentials()
 
     dest_dir = Path(dest_dir)
     dest_dir.mkdir(parents=True, exist_ok=True)
@@ -120,13 +109,4 @@ def download(app_id: str, dest_dir: Path = Path("..")) -> None:
             print("[ERROR] APK file not found after download.")
             sys.exit(1)
 
-    print(f"[SUCCESS] APK downloaded to {dest_dir}/")
-
-
-if __name__ == "__main__":
-    import argparse
-    parser = argparse.ArgumentParser(description="Download an APK from Google Play")
-    parser.add_argument("appID", help="Google Play App ID (e.g. com.example.app)")
-    parser.add_argument("-o", "--output-dir", default="apps", help="Directory to save the APK (default: ./apps/)")
-    args = parser.parse_args()
-    download(args.appID, Path(args.output_dir))
+    print(f"[INFO] APK downloaded to {dest_dir}/")

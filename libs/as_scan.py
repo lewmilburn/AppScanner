@@ -1,23 +1,17 @@
 """
 as_scan.py — Decompile and scan all apps in ./apps/
-
-For each APK found in ./apps/:
-  - Decompiles to ./apps/decompile_temp/<apk_stem>/
-  - Scans with trufflehog v3
-  - Saves report to ./apps/<apk_stem>_report.json
-
-./apps/ itself is never deleted. Only ./apps/decompile_temp/ is cleaned up.
 """
 
 import os
+import platform
 import sys
 import json
 import shutil
 import stat
-import time
 import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 
 from libs.as_report import generate_html
 
@@ -25,24 +19,23 @@ from libs.as_report import generate_html
 APPS_DIR       = Path(__file__).parent / "../apps"
 DECOMPILE_DIR  = APPS_DIR / "decompile_temp"
 
-
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
-
 def _get_trufflehog() -> str:
-    if sys.platform == "win32":
-        binary = "trufflehog_windows.exe"
-    elif sys.platform == "darwin":
-        binary = "trufflehog_macos"
-    else:
-        binary = "trufflehog_linux"
-    return str(Path(__file__).parent / binary)
+    arch_map = {
+        "x86_64": "amd64",
+        "amd64": "amd64",
+        "aarch64": "arm64",
+        "arm64": "arm64",
+    }
+    arch = arch_map.get(platform.machine().lower())
+    if not arch: raise RuntimeError(f"Unsupported architecture: {platform.machine().lower()}")
 
+    ext_map = {"windows": ".exe"}
+    if platform.system().lower() not in ("windows", "darwin", "linux"): raise RuntimeError(f"Unsupported OS: {platform.system().lower()}")
 
-def _get_apktool() -> str:
-    return str(Path(__file__).parent / "apktool.jar")
+    ext = ext_map.get(platform.system().lower(), "")
+    return str(Path(__file__).parent / f"trufflehog_{platform.system().lower()}_{arch}{ext}")
 
+def _get_apktool() -> str: return str(Path(__file__).parent / "apktool.jar")
 
 def _on_rm_error(func, path, exc_info):
     try:
@@ -51,31 +44,18 @@ def _on_rm_error(func, path, exc_info):
     except Exception:
         pass
 
-
 def cleanup_decompile() -> None:
-    """Remove ./apps/decompile_temp/ only — never touches ./apps/ itself."""
-    time.sleep(1)
     if DECOMPILE_DIR.is_dir():
         for attempt in range(3):
             try:
                 shutil.rmtree(DECOMPILE_DIR, onerror=_on_rm_error)
-                print("[CLEANUP] Deleted apps/decompile_temp/")
+                print("[INFO] Deleted apps/decompile_temp/")
                 break
             except Exception as e:
                 if attempt == 2:
-                    print(f"[CLEANUP] Failed to delete apps/decompile_temp/: {e}")
-                time.sleep(1)
+                    print(f"[INFO] Failed to delete apps/decompile_temp/: {e}")
 
-
-# ---------------------------------------------------------------------------
-# Core steps
-# ---------------------------------------------------------------------------
-
-def decompile(apk_path: Path) -> Path:
-    """
-    Decompile a single APK into ./apps/decompile_temp/<apk_stem>/.
-    Returns the output directory path.
-    """
+def decompile(apk_path: Path) -> Path | None:
     out_dir = DECOMPILE_DIR / apk_path.stem
     apktool = _get_apktool()
     command = ["java", "-jar", apktool, "d", str(apk_path), "-o", str(out_dir), "-f"]
@@ -96,12 +76,7 @@ def decompile(apk_path: Path) -> Path:
     print(f"[SUCCESS] Decompiled {apk_path.name}.")
     return out_dir
 
-
-def scan(decompile_dir: Path, apk_stem: str) -> dict:
-    """
-    Scan a decompiled directory with trufflehog v3.
-    Returns the report dict (combined report written by scan_all).
-    """
+def scan(decompile_dir: Path, apk_stem: str) -> dict[str, str | int | list[Any]] | None:
     trufflehog  = _get_trufflehog()
     command     = [trufflehog, "filesystem", str(decompile_dir), "--json", "--no-update"]
 
@@ -135,13 +110,11 @@ def scan(decompile_dir: Path, apk_stem: str) -> dict:
     if findings:
         print(f"[WARNING] {len(findings)} potential secret(s) found in {apk_stem}.")
     else:
-        print(f"[SUCCESS] No secrets found in {apk_stem}.")
+        print(f"[INFO] No secrets found in {apk_stem}.")
 
     return report
 
-
 def scan_all() -> None:
-    """Decompile and scan every APK in ./apps/."""
     if not APPS_DIR.is_dir():
         print(f"[ERROR] apps directory not found: {APPS_DIR}")
         sys.exit(1)
@@ -178,7 +151,6 @@ def scan_all() -> None:
 
         print()
 
-    # Write combined report
     timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
     reports_dir = (APPS_DIR / "../reports").resolve()
     reports_dir.mkdir(exist_ok=True)
@@ -188,10 +160,8 @@ def scan_all() -> None:
         json.dump(all_reports, f, indent=2)
     print(f"[REPORT] JSON report saved to: {combined_path}")
 
-    # Write self-contained HTML report
     generate_html(all_reports, reports_dir / f"report_{timestamp}.html")
 
-    # Summary
     print("\n=== Summary ===")
     for r in results:
         if r["status"] == "ok":
@@ -200,7 +170,3 @@ def scan_all() -> None:
             print(f"  {r['apk']}: {r['status']}")
 
     cleanup_decompile()
-
-
-if __name__ == "__main__":
-    scan_all()

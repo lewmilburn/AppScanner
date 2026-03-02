@@ -1,5 +1,5 @@
 """
-as_report.py — Generates a self-contained HTML report from scan results.
+as_report.py — Generates an HTML report from scan results.
 """
 
 import json
@@ -155,4 +155,4 @@ render(DATA);
 </html>"""
 
     output_path.write_text(html, encoding="utf-8")
-    print(f"[REPORT] HTML report saved to: {output_path}")
+    print(f"[INFO] HTML report saved to: {output_path}")

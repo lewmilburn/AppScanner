@@ -10,11 +10,15 @@ from pathlib import Path
 
 from libs.as_gplay import clear_credentials
 from libs import as_scan as scanner, as_gplay
+from libs import as_install
 
 APPS_DIR = Path(__file__).parent / "apps"
 
-
 def main():
+    installed_flag = Path(__file__).parent / "libs" / "installed.conf"
+    if not installed_flag.exists():
+        as_install.install_trufflehog()
+
     parser = argparse.ArgumentParser(
         description="AppScanner: download, decompile, and scan apps"
     )

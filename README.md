@@ -13,6 +13,8 @@ credentials.
 > Make sure to double-check it is empty if you are sharing AppScanner with anyone!
 
 ## Requirements & Setup
+AppScanner supports Windows, Linux, and macOS devices running on amd64 or arm64 processors. However, we have not tested Linux or macOS.
+
 1. Install Java and Python 3.10 if you do not already have them.
 2. If you have a newer version of Python than 3.10, download it ([Windows](https://www.python.org/downloads/windows), [Linux](https://www.python.org/downloads/source), [macOS](https://www.python.org/downloads/macos)), add it to path, and create a venv using `py -3.10 -m venv .venv`
 3. Install gplaycli: `pip install gplaycli` (see Troubleshooting if you get any errors on first run after install)
@@ -54,10 +56,7 @@ If you are scanning pre-downloaded files you don't need to include a list file.
 ### Supported App Types
 AppScanner supports Android apps, including those in `.apk`, `.apkm`, `.xapk`, and `.apks` formats.
 
-AppScanner does not support iOS apps at this time, but it is planned!
-
 ## Troubleshooting
-AppScanner should run on any OS, but has only been tested on Windows.
 ### GPlayCLI
 - You must have 2FA enabled on your Google Account for GPlayCLI to be able to login.
 - You must use App Passwords when asked for credentials, not your account password.
@@ -73,10 +72,10 @@ pip install "setuptools==68.2.2"
 - APKTool requires Java.
 
 ### Trufflehog
-- This version of AppScanner is bundled with Trufflehod 3.93.6, if you update it delete the old files uncompressed files and drop the new .tar.gz files in the libs folder, do not rename them.
+- This version of AppScanner is bundled with Trufflehod 3.93.6, if you update it delete all of the Trufflehog binaries, delete installed.conf, and drop the new .tar.gz files in the libs folder, do not rename them.
+- Checksums for the binaries are available at https://github.com/trufflesecurity/trufflehog/releases/tag/v3.93.6
 - Not running? Try `chmod +x /libs/trufflehog_[OS]` if on Linux/macOS.
 - Trufflehog is distributed with AppScanner and will be extracted automatically on first run.
 
 ## Roadmap
 - App ID searching
-- iOS app scanning
