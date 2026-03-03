@@ -7,9 +7,6 @@ browser and shared with others.
 The JSON report contains raw and redacted credentials (if any are found), the HTML report only contains redacted 
 credentials.
 
-> ⚠️ **./libs/gplaycli.conf contains YOUR Google account credentials, DO NOT share it with anyone!**
-> Make sure to double-check it is empty if you are sharing AppScanner with anyone!
-
 ## Requirements & Setup
 AppScanner supports Windows (10 build 1511 or newer), Linux, and macOS devices running on amd64 or arm64 processors. However, we have not tested 
 the tool on Linux or macOS.
