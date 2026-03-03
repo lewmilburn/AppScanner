@@ -16,7 +16,7 @@ from libs import as_scan as scanner, as_apkpure
 from libs import as_install
 
 APPS_DIR = Path(__file__).parent / "apps"
-VERSION = "1.0.0"
+VERSION = "0.1.0"
 GITHUB_API = "https://api.github.com/repos/lewmilburn/AppScanner/releases/latest"
 
 def check_for_updates():
@@ -33,7 +33,10 @@ def check_for_updates():
     except Exception: pass
 
 def main():
+    print(f"[INFO] AppScanner is in BETA, expect bugs and issues.")
+    print(f"[INFO] Please report any problems to github.com/lewmilburn/AppScanner")
     check_for_updates()
+    print(f"[INFO] ")
 
     installed_flag = Path(__file__).parent / "libs" / "installed.conf"
     if not installed_flag.exists():
