@@ -11,8 +11,7 @@ libs_dir = Path(__file__).parent
 installed_flag = libs_dir / "installed.conf"
 
 def install_trufflehog():
-    if installed_flag.exists():
-        return
+    if installed_flag.exists(): return
 
     if input("[INFO] TruffleHog binaries are missing. Install now? (y/n): ").strip().lower() not in ("y", "yes"):
         print("[INFO] Installation canceled.")

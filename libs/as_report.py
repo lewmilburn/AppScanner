@@ -8,12 +8,29 @@ from pathlib import Path
 
 
 def generate_html(reports: list, output_path: Path) -> None:
-    data_json      = json.dumps(reports, indent=2)
-    generated_at   = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
-    total_apps     = len(reports)
+    data_json = json.dumps(reports, indent=2)
+    generated_at = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+    total_apps = len(reports)
     total_findings = sum(r.get("total_findings", 0) for r in reports)
     verified_count = sum(1 for r in reports for f in r.get("findings", []) if f.get("Verified"))
-    clean_count    = sum(1 for r in reports if r.get("total_findings", 0) == 0)
+    clean_count = sum(1 for r in reports if r.get("total_findings", 0) == 0)
+
+    from collections import Counter
+    global_counts = Counter(
+        f.get("DetectorName", "Unknown")
+        for r in reports
+        for f in r.get("findings", [])
+    )
+    global_summary_html = "".join(
+        f'<span class="summary-item"><span class="summary-name">{name}</span>'
+        f'<span class="summary-count">{count}</span></span>'
+        for name, count in global_counts.most_common()
+    )
+
+    global_summary_section = (
+        f'<div class="summary-bar" style="margin-bottom:15px">{global_summary_html}</div>'
+        if global_counts else ""
+    )
 
     html = f"""<!DOCTYPE html>
 <html lang="en">
@@ -44,6 +61,12 @@ def generate_html(reports: list, output_path: Path) -> None:
 
     .findings {{ display: none; border-top: 1px solid oklch(20.5% 0 0); }}
     .card.open .findings {{ display: block; }}
+
+    .summary-bar {{ display:flex; flex-wrap:wrap; gap:6px 20px; padding:10px 15px; border-bottom:1px solid oklch(20.5% 0 0); align-items:baseline; background-color: oklch(22% 0 0); }}
+    .summary-item {{ display:flex; gap:6px; align-items:baseline; }}
+    .summary-name {{ font-family:'Courier New',monospace; font-size:0.8rem; color:oklch(70.8% 0 0); }}
+    .summary-count {{ font-size:0.85rem; color:oklch(76.9% 0.188 70.08); font-weight:bold; }}
+
     .finding {{ padding: 12px 15px; border-bottom: 1px solid oklch(20.5% 0 0); display: grid; grid-template-columns: 150px 1fr auto; gap: 10px; align-items: start; }}
     .finding:last-child {{ border-bottom: none; }}
     .f-raw {{ font-family: 'Courier New', monospace; background-color: black; padding: 6px 8px; border-radius: 3px; word-break: break-all; line-height: 1.5; }}
@@ -66,7 +89,7 @@ def generate_html(reports: list, output_path: Path) -> None:
   <div class="stat" style="border: solid 5px oklch(72.3% 0.219 149.579)">{clean_count}<br><div class="stat-label">Clean</div></div>
 </div>
 
-<div style="display:flex; gap:8px; align-items:center; margin-bottom:15px">
+{global_summary_section}<div style="display:flex; gap:8px; align-items:center; margin-bottom:15px">
   <button class="active" data-filter="all">All</button>
   <button data-filter="findings">Has Findings</button>
   <button data-filter="verified">Verified</button>
@@ -79,24 +102,38 @@ def generate_html(reports: list, output_path: Path) -> None:
 <script>
 const DATA = {data_json};
 
-const getRaw  = f => f.Redacted || f.RawV2 || f.Raw || "Error loading, please check report.json";
+const getRaw = f => f.Redacted || f.RawV2 || f.Raw || "Error loading, please check report.json";
 const getFile = f => f.SourceMetadata?.Data?.Filesystem?.file || '';
 const getLine = f => f.SourceMetadata?.Data?.Filesystem?.line ?? null;
 const fmtTime = t => {{ try {{ return new Date(t).toLocaleString(); }} catch {{ return t; }} }};
 
 function renderApp(r) {{
-  const hasF  = r.total_findings > 0;
+  const hasF = r.total_findings > 0;
   const verif = (r.findings || []).filter(f => f.Verified).length;
   const fBadge = hasF ? `<span class="badge b-amber">${{r.total_findings}} finding${{r.total_findings > 1 ? 's' : ''}}</span>` : '<span class="badge b-green">Clean</span>';
   const vBadge = verif > 0 ? `<span class="badge b-red">${{verif}} verified</span>` : '';
 
+  const summaryHtml = (() => {{
+    if (!hasF) return '';
+    const counts = {{}};
+    (r.findings || []).forEach(f => {{
+      const name = f.DetectorName || 'Unknown';
+      counts[name] = (counts[name] || 0) + 1;
+    }});
+    const items = Object.entries(counts)
+      .sort((a, b) => b[1] - a[1])
+      .map(([name, count]) => `<span class="summary-item"><span class="summary-name">${{name}}</span><span class="summary-count">${{count}}</span></span>`)
+      .join('');
+    return `<div class="summary-bar">${{items}}</div>`;
+  }})();
+
   const findingsHtml = hasF
-    ? (r.findings || []).map(f => {{
-        const file    = getFile(f);
-        const line    = getLine(f);
+    ? summaryHtml + (r.findings || []).map(f => {{
+        const file = getFile(f);
+        const line = getLine(f);
         const fileMeta = file ? `<div style="font-family:'Courier New',monospace; color:oklch(70.8% 0 0); margin-bottom:4px">${{file}}${{line !== null ? `:${{line}}` : ''}}</div>` : '';
         const verifError = f.VerificationError || '';
-        const badge   = f.Verified
+        const badge = f.Verified
           ? '<span class="badge b-red">Verified</span>'
           : `<span class="badge b-amber" title="${{verifError}}">Unverified</span>`;
         return `

@@ -11,31 +11,31 @@ credentials.
 > Make sure to double-check it is empty if you are sharing AppScanner with anyone!
 
 ## Requirements & Setup
-AppScanner supports Windows, Linux, and macOS devices running on amd64 or arm64 processors. However, we have not tested Linux or macOS.
+AppScanner supports Windows (10 build 1511 or newer), Linux, and macOS devices running on amd64 or arm64 processors. However, we have not tested 
+the tool on Linux or macOS.
 
-1. Install Java and Python 3.10 if you do not already have them.
-2. If you have a newer version of Python than 3.10, download it ([Windows](https://www.python.org/downloads/windows), [Linux](https://www.python.org/downloads/source), [macOS](https://www.python.org/downloads/macos)), add it to path, and create a venv using `py -3.10 -m venv .venv`
-3. Install gplaycli: `pip install gplaycli` (see Troubleshooting if you get any errors on first run after install)
-4. Enable 2FA on your Google account
+AppScanner requires cURL to work, it is bundled with most operating systems, but may need installing if you don't 
+already have it.
 
 ## Usage
-To use AppScanner, simply run `py AppScanner.py [appID]`
+To use AppScanner, simply run `py AppScanner.py -a=[appID]`
 
 The App ID is the package name. For example: `com.bbc.sounds`, you can get these from the URL bar on Google Play.
 
-For advanced use, see the "Arguments" section below.
+**You MUST pass one of the following arguments:**
 
-The first time you use AppScanner, you may be prompted to enter your Google account credentials. We can't query the Play
-Store's APIs without it. You will be prompted to enter your credentials as/when they are needed and given links to
-generate App Passwords if required. If you don't want to enter your credentials, you can scan pre-downloaded files
-instead (see next section).
+| Long              | Short | Example                              | Description                                                                                 |
+|-------------------|-------|--------------------------------------|---------------------------------------------------------------------------------------------|
+| `--app`           | `-a`  | `py AppScanner.py -a=com.bbc.sounds` | Downloads an APK package.                                                                   |
+| `--search`        | `-q`  | `py AppScanner.py -q="BBC Sounds"`   | Searches for APK packages.                                                                  |
+| `--list=FILENAME` | `-l`  | `py AppScanner.py -l`                | Pass in a file containing a list of App IDs to be downloaded, see "Bulk Downloading" below. |
+| `--skip-dl`       | `-s`  | `py AppScanner.py -s`                | Skips the download/search step, only scanning files already in the "apps" directory.        |
 
-### Scanning pre-downloaded apps
-If you already have apps downloaded, create a folder named "apps" within the AppScanner directory and put your apps in 
-there.
+**You may also pass one of the following arguments if required:**
 
-Next, run `py AppScanner.py -s`, passing the `-s` argument to `AppScanner.py`. This will skip the download step and 
-begin scanning all files in the apps folder.
+| Long              | Short | Example                                 | Description                                                                                                                      |
+|-------------------|-------|-----------------------------------------|----------------------------------------------------------------------------------------------------------------------------------|
+| `--keep`          | `-k`  | `py AppScanner.py -a=com.bbc.sounds -k` | After scanning AppScanner automatically deletes APKs to free up disk space, passing this argument stops them from being deleted. |
 
 ### Bulk Downloading
 To download multiple apps at once, create a file (for example name it apps.txt) and put an App ID on each line.
@@ -44,27 +44,20 @@ Next, run `py AppScanner.py --list=apps.txt` and AppScanner will begin to proces
 
 If you are scanning pre-downloaded files you don't need to include a list file.
 
-### Arguments
-| Long                  | Short         | Description                                                                                 |
-|-----------------------|---------------|---------------------------------------------------------------------------------------------|
-| `--skip-dl`           | `-s`          | Skips the download step, only scanning files already in the "apps" directory.               |
-| `--clear-credentials` | `-c`          | Remove saved Google credentials and exit.                                                   |
-| `--list=FILENAME`     | `-l=FILENAME` | Pass in a file containing a list of App IDs to be downloaded, see "Bulk Downloading" below. |
+Alternatively, you can search for files using `py AppScanner.py --search=[Search Term]` and bulk-download all returned
+results.
+
+### Scanning pre-downloaded apps
+If you already have apps downloaded, create a folder named "apps" within the AppScanner directory and put your apps in 
+there.
+
+Next, run `py AppScanner.py -s`, passing the `-s` argument to `AppScanner.py`. This will skip the download step and 
+begin scanning all files in the apps folder.
 
 ### Supported App Types
 AppScanner supports Android apps, including those in `.apk`, `.apkm`, `.xapk`, and `.apks` formats.
 
 ## Troubleshooting
-### GPlayCLI
-- You must have 2FA enabled on your Google Account for GPlayCLI to be able to login.
-- You must use App Passwords when asked for credentials, not your account password.
-- If you have entered the wrong password pass argument `-c` to reset the credential store.
-- If you get an error when first running, try the below commands:
-```
-pip uninstall setuptools -y
-pip install "setuptools==68.2.2"
-```
-
 ### APKTool
 - This version of AppScanner is bundled with APKTool 3.0.1, if you update it ensure the filenames match.
 - APKTool requires Java.

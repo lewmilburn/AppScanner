@@ -5,3 +5,6 @@
 /libs/trufflehog_windows.exe
 /libs/gplaylci.conf
 /libs/__pycache__
+/googleplay-api
+/apps/*.apk
+/apps/decompile_temp
