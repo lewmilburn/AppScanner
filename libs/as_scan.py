@@ -26,7 +26,7 @@ APPS_DIR = Path(__file__).parent / "../apps"
 DECOMPILE_DIR = APPS_DIR / "decompile_temp"
 SCANNED_DIR = APPS_DIR / "scanned"
 
-MAX_WORKERS = 4
+MAX_WORKERS = os.cpu_count() * 2
 COL_APK = 30
 COL_STAGE = 14
 COL_LOG = 40
@@ -235,6 +235,7 @@ def _ui_loop(states: list[AppState]):
 
 def _run_with_log(command: list[str], st: AppState, stage: str,
                   stdout_lines: list[str] | None = None,
+                  stderr_lines: list[str] | None = None,
                   pulse_step: float = 0.02,
                   pulse_interval: float = 0.15) -> int:
 
@@ -270,7 +271,9 @@ def _run_with_log(command: list[str], st: AppState, stage: str,
             while True:
                 item = stderr_q.get_nowait()
                 if item is None: stderr_done = True
-                else: st.set_log(item)
+                else:
+                    st.set_log(item)
+                    if stderr_lines is not None: stderr_lines.append(item)
         except queue.Empty: pass
 
         pulse = min(pulse + pulse_step, 0.9)
