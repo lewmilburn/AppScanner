@@ -8,3 +8,8 @@
 /apps/*.apk
 /apps/decompile_temp
 /*/__pycache__
+/reports/*.html
+/reports/*.json
+/libs/*64
+/libs/*64.exe
+/libs/installed.conf
