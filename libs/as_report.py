@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 
-def generate_html(reports: list, output_path: Path) -> None:
+def generate_html(reports: list, output_path: Path, version: str) -> None:
     data_json = json.dumps(reports, indent=2)
     generated_at = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
     total_apps = len(reports)
@@ -79,7 +79,7 @@ def generate_html(reports: list, output_path: Path) -> None:
     <h1 style="font-size:4rem;margin:0;font-weight:bold;"><span style="color:oklch(63.7% 0.237 25.331)">App</span><span style="color:oklch(76.9% 0.188 70.08)">Scanner</span></h1>
     <p style="margin:0">Report for scan at {generated_at}.</p>
   </div>
-  <p style="color:oklch(55.6% 0 0); font-size:0.8rem; margin:5px 0 20px 0">AppScanner v0.1.0</p>
+  <p style="color:oklch(55.6% 0 0); font-size:0.8rem; margin:5px 0 20px 0">AppScanner v{version}</p>
 </div>
 
 <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:15px; margin:20px 0">

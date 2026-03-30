@@ -344,7 +344,7 @@ def _process_apk(apk_path: Path, keep: bool) -> dict:
 # Entrypoint
 #
 
-def scan_all(keep: bool = False) -> None:
+def scan_all(keep: bool = False, version: str = "DEV") -> None:
     if not APPS_DIR.is_dir():
         print(f"[ERROR] Apps directory not found: {APPS_DIR}")
         sys.exit(1)
@@ -401,7 +401,7 @@ def scan_all(keep: bool = False) -> None:
     combined_path = reports_dir / f"report_{timestamp}.json"
     with open(combined_path, "w", encoding="utf-8") as f: json.dump(all_reports, f, indent=2)
 
-    generate_html(all_reports, reports_dir / f"report_{timestamp}.html")
+    generate_html(all_reports, reports_dir / f"report_{timestamp}.html", version)
 
     print(f"\n[REPORT] Saved to: {combined_path}")
     print("\n=== Summary ===")

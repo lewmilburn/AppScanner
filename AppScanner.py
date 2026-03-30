@@ -16,7 +16,7 @@ from libs import as_scan as scanner, as_apkpure
 from libs import as_install
 
 APPS_DIR = Path(__file__).parent / "apps"
-VERSION = "0.1.0"
+VERSION = "0.2.0"
 GITHUB_API = "https://api.github.com/repos/lewmilburn/AppScanner/releases/latest"
 
 def check_for_updates():
@@ -158,7 +158,7 @@ def main():
     else: print("\n=== AppScanner: scan only (skip download) mode ===\n")
 
     print("--- Decompile & Scan ---\n")
-    scanner.scan_all(keep=args.keep)
+    scanner.scan_all(keep=args.keep, version=VERSION)
 
     print("\n=== Done ===")
 
