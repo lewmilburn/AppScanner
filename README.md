@@ -69,8 +69,8 @@ disk space will be used.
 #### Creating an AppList
 To create an AppList (which is especially helpful when you need to search across multiple keywords or categories) you 
 can pass `--save-list=example.txt` into AppScanner for it to save your selection to an AppList instead of processing it.
-Apps will not be scanned when this flag is sent, only downloaded. Next, conduct any additional searches you require,
-also saving them to the same file (it will ask you if you want to overwrite or append the file).
+Apps will not be downloaded or scanned when this flag is sent, only added to the list. Next, conduct any additional 
+searches you require, also saving them to the same file (it will ask you if you want to overwrite or append the file).
 
 #### Using AppLists
 First, create an AppList. Then run `py AppScanner.py --list=example.txt` (with your AppList being example.txt) for 
