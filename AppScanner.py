@@ -80,7 +80,7 @@ def main():
         help="Gets a list of all available APK categories"
     )
     parser.add_argument(
-        "--save-list",
+        "--save-list", "-v",
         type=Path,
         default=None,
         help="Save search selection to a list file"
