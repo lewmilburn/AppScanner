@@ -96,6 +96,3 @@ AppScanner supports Android apps, including those in `.apk`, `.apkm`, `.xapk`, a
 - Checksums for the binaries are available at https://github.com/trufflesecurity/trufflehog/releases/tag/v3.94.1
 - Not running? Try `chmod +x /libs/trufflehog_[OS]` if on Linux/macOS.
 - Trufflehog is distributed with AppScanner and will be extracted automatically on first run.
-
-## Roadmap
-- App ID searching
