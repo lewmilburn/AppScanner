@@ -16,7 +16,7 @@ from libs import as_scan as scanner, as_apkpure
 from libs import as_install
 
 APPS_DIR = Path(__file__).parent / "apps"
-VERSION = "0.2.0"
+VERSION = "0.2.1"
 GITHUB_API = "https://api.github.com/repos/lewmilburn/AppScanner/releases/latest"
 
 def check_for_updates():
@@ -80,7 +80,7 @@ def main():
         help="Gets a list of all available APK categories"
     )
     parser.add_argument(
-        "--save-list",
+        "--save-list", "-v",
         type=Path,
         default=None,
         help="Save search selection to a list file"
