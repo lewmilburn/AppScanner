@@ -16,7 +16,7 @@ from libs import as_scan as scanner, as_apkpure
 from libs import as_install
 
 APPS_DIR = Path(__file__).parent / "apps"
-VERSION = "0.2.0"
+VERSION = "0.2.1"
 GITHUB_API = "https://api.github.com/repos/lewmilburn/AppScanner/releases/latest"
 
 def check_for_updates():
