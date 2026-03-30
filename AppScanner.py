@@ -69,6 +69,17 @@ def main():
         help="Search APKPure for apps to download and scan"
     )
     parser.add_argument(
+        "--categorySearch", "-cs",
+        type=str,
+        default=None,
+        help="Search APKPure for apps in a specific category"
+    )
+    parser.add_argument(
+        "--categoryList", "-cl",
+        action="store_true",
+        help="Gets a list of all available APK categories"
+    )
+    parser.add_argument(
         "--save-list",
         type=Path,
         default=None,
@@ -81,18 +92,42 @@ def main():
     )
     args = parser.parse_args()
 
-    if args.skip_dl and (args.list or args.search):
+    if args.skip_dl and (args.list or args.search or args.categorySearch or args.categoryList):
         parser.error("--skip-dl cannot be combined with --list or --search")
 
-    if not args.skip_dl and not args.app and not args.list and not args.search:
-        parser.error("--app, --list, or --search is required unless using --skip-dl")
+    if not args.skip_dl and not args.app and not args.list and not args.search and not args.categorySearch and not args.categoryList:
+        parser.error("--app, --list, --search, or --categorySearch is required unless using --skip-dl")
 
     if not args.skip_dl:
         app_ids = []
 
+        # Determine search source
         if args.search:
-            app_ids = as_apkpure.search_and_select(args.search, list_output=args.save_list)
-            if not app_ids: sys.exit(0)
+            app_ids = as_apkpure.search_and_select(args.search, searchtype=0, list_output=args.save_list)
+        elif args.categorySearch:
+            app_ids = as_apkpure.search_and_select(args.categorySearch, searchtype=1, list_output=args.save_list)
+        elif args.categoryList:
+            categories = as_apkpure.category_list()
+            if not categories:
+                print("[INFO] No categories found.")
+                sys.exit(0)
+
+            print("\n=== Categories ===")
+            for i, cat in enumerate(categories, 1):
+                print(f"{i:2}. {cat}")
+
+            choice = input("\nSelect a category number to search apps (or press Enter to cancel): ").strip()
+            if not choice:
+                sys.exit(0)
+
+            if not choice.isdigit() or not (1 <= int(choice) <= len(categories)):
+                print("[ERROR] Invalid selection.")
+                sys.exit(1)
+
+            selected_category = categories[int(choice) - 1].lower().replace(" ", "-")
+            print(f"[INFO] Selected category: {selected_category}")
+
+            app_ids = as_apkpure.search_and_select(selected_category, searchtype=1, list_output=args.save_list)
         elif args.list:
             if not args.list.is_file():
                 print(f"[ERROR] File not found: {args.list}")
@@ -102,6 +137,16 @@ def main():
         elif args.app:
             app_ids = [args.app]
 
+        if not app_ids:
+            print("[INFO] No apps selected.")
+            sys.exit(0)
+
+        # --- NEW: If --save-list is provided, just save & exit ---
+        if args.save_list:
+            print(f"[INFO] App IDs saved to {args.save_list}, exiting without downloading.")
+            sys.exit(0)
+
+        # --- Normal download & scan ---
         APPS_DIR.mkdir(exist_ok=True)
         print(f"\n=== AppScanner: downloading {len(app_ids)} app(s) ===\n")
 
@@ -109,6 +154,7 @@ def main():
             print(f"--- Download [{i}/{len(app_ids)}]: {app_id} ---")
             as_apkpure.download(app_id, dest_dir=APPS_DIR)
             print()
+
     else: print("\n=== AppScanner: scan only (skip download) mode ===\n")
 
     print("--- Decompile & Scan ---\n")

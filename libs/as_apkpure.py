@@ -10,7 +10,7 @@ from time import sleep
 
 from bs4 import BeautifulSoup
 
-USER_AGENT = "AppScanner github.com/lewmilburn/AppScanner"
+USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:149.0) Gecko/20100101 Firefox/149.0"
 
 def _fetch(url: str) -> str:
     with tempfile.NamedTemporaryFile(delete=False, suffix=".html") as f: tmp = f.name
@@ -22,6 +22,104 @@ def _fetch(url: str) -> str:
         print(f"[ERROR] Failed to fetch {url}")
         sys.exit(1)
     with open(tmp, "r", encoding="utf-8", errors="ignore") as f: return f.read()
+
+def category_list() -> list[str]:
+    print("[INFO] Fetching all APKPure categories...")
+    categories = set()
+
+    for url in ["https://apkpure.com/app", "https://apkpure.com/game"]:
+        html = _fetch(url)
+        soup = BeautifulSoup(html, "html.parser")
+
+        for a in soup.select("a[href^='/'][data-dt-cate]"):
+            href = a.get("href", "").strip()
+            span = a.select_one("span")
+            if span and href and "/topic/" not in href:
+                slug = href.lstrip("/")
+                categories.add(slug)
+
+    categories = sorted(categories)
+    print(f"[INFO] Found {len(categories)} unique categories.")
+    return categories
+
+def category_search(query: str) -> list[dict]:
+    print(f"[INFO] Fetching category '{query}'...")
+
+    results = []
+    page = 1
+
+    while True:
+        html = _fetch(f"https://apkpure.com/{query}?page={page}&sort=new&ajax=1")
+        soup = BeautifulSoup(html, "html.parser")
+
+        items = soup.select("div.grid-row")
+        if not items:
+            print("[INFO] No more results.")
+            break
+
+        print(f"\n[INFO] Page {page}: {len(items)} apps")
+
+        for item in items:
+            pkg = item.get("data-dt-pkg", "").strip()
+            if not pkg:
+                continue
+
+            title_el = item.select_one("a.grid-item-title")
+            dev_el = item.select_one("p.grid-item-developer")
+
+            name = title_el.get_text(strip=True) if title_el else ""
+            dev = dev_el.get_text(strip=True) if dev_el else ""
+
+            results.append({
+                "name": name,
+                "package": pkg,
+                "developer": dev
+            })
+
+        # Ask how many more pages
+        choice = input("How many more pages? (Enter = stop): ").strip()
+
+        if not choice:
+            break
+
+        if not choice.isdigit():
+            print("[INFO] Invalid input, stopping.")
+            break
+
+        remaining = int(choice)
+
+        for _ in range(remaining):
+            page += 1
+            sleep(3)
+
+            html = _fetch(f"https://apkpure.com/{query}?page={page}&sort=new&ajax=1")
+            soup = BeautifulSoup(html, "html.parser")
+
+            items = soup.select("div.grid-row")
+            if not items:
+                print("[INFO] No more results.")
+                return results
+
+            print(f"[INFO] Page {page}: {len(items)} apps")
+
+            for item in items:
+                pkg = item.get("data-dt-pkg", "").strip()
+                if not pkg:
+                    continue
+
+                title_el = item.select_one("a.grid-item-title")
+                dev_el = item.select_one("p.grid-item-developer")
+
+                name = title_el.get_text(strip=True) if title_el else ""
+                dev = dev_el.get_text(strip=True) if dev_el else ""
+
+                results.append({
+                    "name": name,
+                    "package": pkg,
+                    "developer": dev
+                })
+
+    return results
 
 
 def search(query: str) -> list[dict]:
@@ -57,6 +155,7 @@ def interactive_select(results: list[dict]) -> list[str]:
         dev_str = f" — {app['developer']}" if app.get("developer") else ""
         print(f"  {i:2}. {app['name']} ({app['package']}){dev_str}")
 
+    print("\nWarning: Downloading a large number of apps at once may result in you being blocked despite AppScanner's delays.")
     print("\nEnter numbers to download (e.g. 1,3,5 or 1-5 or 'all'), or press Enter to cancel:")
     selection = input("> ").strip().lower()
 
@@ -75,11 +174,24 @@ def interactive_select(results: list[dict]) -> list[str]:
     return [results[i]["package"] for i in sorted(indices) if 0 <= i < len(results)]
 
 def save_list(packages: list[str], path: Path) -> None:
+    if path.exists():
+        while True:
+            choice = input(f"[INFO] File {path} already exists. Overwrite (o) or Append (a)? [o/a]: ").strip().lower()
+            if choice in {"o", "a"}:
+                break
+            print("[INFO] Invalid input. Enter 'o' to overwrite or 'a' to append.")
+
+        if choice == "a":
+            existing = path.read_text().splitlines()
+            packages = existing + packages
+
     path.write_text("\n".join(packages))
     print(f"[INFO] Saved {len(packages)} package ID(s) to {path}")
 
-def search_and_select(query: str, list_output: Path = None) -> list[str]:
-    results = search(query)
+def search_and_select(query: str, searchtype: int = 0, list_output: Path = None) -> list[str]:
+    if searchtype == 0: results = search(query)
+    else: results = category_search(query)
+
     packages = interactive_select(results)
 
     if not packages:

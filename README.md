@@ -14,25 +14,32 @@ the tool on Linux or macOS.
 AppScanner requires cURL to work, it is bundled with most operating systems, but may need installing if you don't 
 already have it.
 
+If you download a lot of apps, a lot of disk space will be used.
+
+Windows: If it does not run in PowerShell, try the standard command prompt.
+
 ## Usage
 To use AppScanner, simply run `py AppScanner.py -a=[appID]`
 
 The App ID is the package name. For example: `com.bbc.sounds`, you can get these from the URL bar on Google Play.
 
-**You MUST pass one of the following arguments:**
+**You MUST pass ONE of the following arguments:**
 
-| Long              | Short | Example                              | Description                                                                                 |
-|-------------------|-------|--------------------------------------|---------------------------------------------------------------------------------------------|
-| `--app`           | `-a`  | `py AppScanner.py -a=com.bbc.sounds` | Downloads an APK package.                                                                   |
-| `--search`        | `-q`  | `py AppScanner.py -q="BBC Sounds"`   | Searches for APK packages.                                                                  |
-| `--list=FILENAME` | `-l`  | `py AppScanner.py -l`                | Pass in a file containing a list of App IDs to be downloaded, see "Bulk Downloading" below. |
-| `--skip-dl`       | `-s`  | `py AppScanner.py -s`                | Skips the download/search step, only scanning files already in the "apps" directory.        |
+| Long               | Short | Example                                | Description                                                                                 |
+|--------------------|-------|----------------------------------------|---------------------------------------------------------------------------------------------|
+| `--app`            | `-a`  | `py AppScanner.py -a=com.bbc.sounds`   | Downloads an APK package.                                                                   |
+| `--search`         | `-q`  | `py AppScanner.py -q="BBC Sounds"`     | Searches for APK packages.                                                                  |
+| `--categoryList`   | `-cl` | `py AppScanner.py -cl`                 | Gets a list of all available APK categories, then allows you to search one.                 |
+| `--categorySearch` | `-cs` | `py AppScanner.py -cs="entertainment"` | Search APKPure for apps in a specific category.                                             |
+| `--list=FILENAME`  | `-l`  | `py AppScanner.py -l`                  | Pass in a file containing a list of App IDs to be downloaded, see "Bulk Downloading" below. |
+| `--skip-dl`        | `-s`  | `py AppScanner.py -s`                  | Skips the download/search step, only scanning files already in the "apps" directory.        |
 
 **You may also pass one of the following arguments if required:**
 
-| Long              | Short | Example                                 | Description                                                                                                                      |
-|-------------------|-------|-----------------------------------------|----------------------------------------------------------------------------------------------------------------------------------|
-| `--keep`          | `-k`  | `py AppScanner.py -a=com.bbc.sounds -k` | After scanning AppScanner automatically deletes APKs to free up disk space, passing this argument stops them from being deleted. |
+| Long          | Short | Example                                 | Description                                                                                                                                                                                                                                                         |
+|---------------|-------|-----------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `--keep`      | `-k`  | `py AppScanner.py -a=com.bbc.sounds -k` | After scanning AppScanner automatically deletes APKs to free up disk space, passing this argument stops them from being deleted. This may result in considerably higher disk usage.                                                                                 |
+| `--save-list` | `-k`  | `py AppScanner.py -cl --save-list`      | Instead of downloading the apps right away, AppScanner will create a wordlist. This allows you to select apps from multiple categories and then pass the list in using the --list flag instead. If file exists, it will ask you if you want to overwrite or append. |
 
 ### Bulk Downloading
 To download multiple apps at once, create a file (for example name it apps.txt) and put an App ID on each line.
