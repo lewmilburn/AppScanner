@@ -58,6 +58,15 @@ there.
 Next, run `py AppScanner.py -s`, passing the `-s` argument to `AppScanner.py`. This will skip the download step and 
 begin scanning all files in the apps folder.
 
+### Downloading apps from multiple categories or searches
+If you need to conduct multiple searches (either of apps or categories) you can pass `--save-list=example.txt` into AppScanner for it to save your search to a file.
+
+Next, conduct any additional searches you require, also saving them to the same file (it will ask you if you want to overwrite or append the file).
+
+Finally, run `py AppScanner.py --list=example.txt` for AppScanner to download all of the files you have previously searched for.
+
+Please note that downloading lots of apps will result in high disk usage and increases the chance that you are blocked from the service.
+
 ### Supported App Types
 AppScanner supports Android apps, including those in `.apk`, `.apkm`, `.xapk`, and `.apks` formats.
 
