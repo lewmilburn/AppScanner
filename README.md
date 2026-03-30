@@ -76,8 +76,8 @@ AppScanner supports Android apps, including those in `.apk`, `.apkm`, `.xapk`, a
 - APKTool requires Java.
 
 ### Trufflehog
-- This version of AppScanner is bundled with Trufflehod 3.93.6, if you update it delete all of the Trufflehog binaries, delete installed.conf, and drop the new .tar.gz files in the libs folder, do not rename them.
-- Checksums for the binaries are available at https://github.com/trufflesecurity/trufflehog/releases/tag/v3.93.6
+- This version of AppScanner is bundled with Trufflehog 3.94.1, if you update it delete all of the Trufflehog binaries, delete installed.conf, and drop the new .tar.gz files in the libs folder, do not rename them. We will periodically update Trufflehog for you.
+- Checksums for the binaries are available at https://github.com/trufflesecurity/trufflehog/releases/tag/v3.94.1
 - Not running? Try `chmod +x /libs/trufflehog_[OS]` if on Linux/macOS.
 - Trufflehog is distributed with AppScanner and will be extracted automatically on first run.
 
